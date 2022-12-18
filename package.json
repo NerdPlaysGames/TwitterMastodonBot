@@ -1,0 +1,35 @@
+{
+  "name": "mastobot",
+  "version": "0.0.1",
+  "description": "",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nerd",
+  "license": "UNLICENCED",
+  "dependencies": {
+    "danno-tools": "^1.1.2",
+    "dotenv": "^10.0.0",
+    "megalodon": "^4.1.1",
+    "moment": "^2.29.3",
+    "moment-timezone": "^0.5.38",
+    "node-cron": "^3.0.0",
+    "node-fetch": "^3.3.0",
+    "objectdiff": "^1.1.0",
+    "socket.io-client": "^4.2.0",
+    "twitter-api-v2": "^1.12.9"
+  },
+  "devDependencies": {
+    "eslint": "^7.2.0",
+    "eslint-config-almeida": "^1.0.7",
+    "eslint-plugin-import": "^2.20.2"
+  },
+  "eslintConfig": {
+    "extends": "almeida",
+    "rules": {
+      "no-await-in-loop": "off",
+      "linebreak-style": "off"
+    }
+  }
+}
