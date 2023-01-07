@@ -39,8 +39,11 @@ starbaseIO.on('connect', () => {
 // For every new closure
 starbaseIO.on('newClosure', (data) => {
   logger.log('New Closure');
-  let date = moment(data.date, 'dddd, MMMM D, YYYY').format('M/D/YYYY');
-  let closureString = `Starbase - New Closure:\n${data.type} ${date} ${data.status} ${data.time}`;
+  let regex = /(\w+,?\s)?(\w+)\s(\d+),\s(\d+)/;
+  let match = data.date.match(regex);
+  let date = moment(`${match[2]} ${match[3]}, ${match[4]}`, 'MMM D, YYYY');
+  let dateString = date.format('M/D/YYYY');
+  let closureString = `Starbase - New Closure:\n${data.type} ${dateString} ${data.status} ${data.time}`;
   distribute(closureString);
 });
 
@@ -73,7 +76,10 @@ starbaseIO.on('dataUpdatePub', async (data) => {
 
 starbaseIO.on('updateClosure', async (data) => {
   logger.log('Closure Update');
-  let date = moment(data.new.date, 'dddd, MMMM D, YYYY').format('M/D/YYYY');
+  let regex = /(\w+,?\s)?(\w+)\s(\d+),\s(\d+)/;
+  let match = data.new.date.match(regex);
+  let date = moment(`${match[2]} ${match[3]}, ${match[4]}`, 'MMM D, YYYY');
+  let dateString = date.format('M/D/YYYY');
   let testingDiff = objectdiff.diff(data.old, data.new);
   let changes = {};
   await diffValueHandler(testingDiff, null, changes);
@@ -85,7 +91,7 @@ starbaseIO.on('updateClosure', async (data) => {
     changeString.push(`${keys[key]}: ${difference.removed} => ${difference.added}`);
   }
 
-  let closureUpdateString = `Starbase - ${date} Closure Update:\n${changeString.join('\n')}`;
+  let closureUpdateString = `Starbase - ${dateString} Closure Update:\n${changeString.join('\n')}`;
   distribute(closureUpdateString);
 });
 
