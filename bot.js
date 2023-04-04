@@ -37,13 +37,43 @@ starbaseIO.on('connect', () => {
 });
 
 // For every new closure
-starbaseIO.on('newClosure', (data) => {
-  logger.log('New Closure');
-  let regex = /(\w+,?\s)?(\w+)\s(\d+),\s(\d+)/;
-  let match = data.date.match(regex);
-  let date = moment(`${match[2]} ${match[3]}, ${match[4]}`, 'MMM D, YYYY');
-  let dateString = date.format('M/D/YYYY');
-  let closureString = `Starbase - New Closure:\n${data.type} ${dateString} ${data.status} ${data.time}`;
+// starbaseIO.on('newClosure', (data) => {
+//   logger.log('New Closure');
+//   let regex = /(\w+,?\s)?(\w+)\s(\d+),\s(\d+)/;
+//   let match = data.date.match(regex);
+//   let date = moment(`${match[2]} ${match[3]}, ${match[4]}`, 'MMM D, YYYY');
+//   let dateString = date.format('M/D/YYYY');
+//   let closureString = `Starbase - New Closure:\n${data.type} ${dateString} ${data.status} ${data.time}`;
+//   distribute(closureString);
+// });
+starbaseIO.on('roadClosuresChanges', async (data) => {
+  logger.log('Road Closure Update');
+  let closureChanges = [];
+
+  for (let i = 0; i < data.length; i++) {
+    let change = data[i];
+
+    if (change.type === 'new') {
+      let date = moment(`${change.closure.timestamps.start}`, 'X');
+      let dateString = `${date.format('MMM')}. ${date.format('D')}`;
+      let string = `🆕 ${dateString}, ${change.closure.type}, ${replaceClosure(change.closure.status)}, ${change.closure.time}`;
+      closureChanges.push(string);
+    } else if (change.type === 'update') {
+      let date = moment(`${change.new.timestamps.start}`, 'X');
+      let dateString = `${date.format('MMM')}. ${date.format('D')}`;
+      let testingDiff = objectdiff.diff(change.old, change.new);
+      let changes = {};
+      await diffValueHandler(testingDiff, null, changes);
+
+      for (const key in changes) {
+        const difference = changes[key];
+        closureChanges.push(`🔄 ${dateString}: ${keys[key]}: ${replaceClosure(difference.removed)} => ${replaceClosure(difference.added)}`);
+      }
+    } else {
+      logger.error('Unknown closure change type', change.type);
+    }
+  }
+  let closureString = `Starbase - Road Closure Update:\n\n${closureChanges.join('\n')}`;
   distribute(closureString);
 });
 
@@ -74,26 +104,26 @@ starbaseIO.on('dataUpdatePub', async (data) => {
   distribute(dataUpdateString);
 });
 
-starbaseIO.on('updateClosure', async (data) => {
-  logger.log('Closure Update');
-  let regex = /(\w+,?\s)?(\w+)\s(\d+),\s(\d+)/;
-  let match = data.new.date.match(regex);
-  let date = moment(`${match[2]} ${match[3]}, ${match[4]}`, 'MMM D, YYYY');
-  let dateString = date.format('M/D/YYYY');
-  let testingDiff = objectdiff.diff(data.old, data.new);
-  let changes = {};
-  await diffValueHandler(testingDiff, null, changes);
+// starbaseIO.on('updateClosure', async (data) => {
+//   logger.log('Closure Update');
+//   let regex = /(\w+,?\s)?(\w+)\s(\d+),\s(\d+)/;
+//   let match = data.new.date.match(regex);
+//   let date = moment(`${match[2]} ${match[3]}, ${match[4]}`, 'MMM D, YYYY');
+//   let dateString = date.format('M/D/YYYY');
+//   let testingDiff = objectdiff.diff(data.old, data.new);
+//   let changes = {};
+//   await diffValueHandler(testingDiff, null, changes);
 
-  let changeString = [];
+//   let changeString = [];
 
-  for (const key in changes) {
-    const difference = changes[key];
-    changeString.push(`${keys[key]}: ${difference.removed} => ${difference.added}`);
-  }
+//   for (const key in changes) {
+//     const difference = changes[key];
+//     changeString.push(`${keys[key]}: ${difference.removed} => ${difference.added}`);
+//   }
 
-  let closureUpdateString = `Starbase - ${dateString} Closure Update:\n${changeString.join('\n')}`;
-  distribute(closureUpdateString);
-});
+//   let closureUpdateString = `Starbase - ${dateString} Closure Update:\n${changeString.join('\n')}`;
+//   distribute(closureUpdateString);
+// });
 
 // Handles nested differences in values
 function diffValueHandler(diff, name, changes) {
@@ -168,4 +198,9 @@ function distribute(string) {
   rwClient.v2.tweet(string).catch((err) => {
     logger.error(err);
   });
+}
+
+function replaceClosure(string) {
+  let newString = string.replace('Closure', '');
+  return newString.trim();
 }
