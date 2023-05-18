@@ -5,6 +5,7 @@ require('dotenv').config();
 const Logger = require('danno-tools').Logger;
 let { Mastodon } = require('megalodon');
 const moment = require('moment');
+require('moment-timezone');
 const cron = require('node-cron');
 // eslint-disable-next-line no-shadow
 const objectdiff = require('objectdiff');
@@ -55,11 +56,13 @@ starbaseIO.on('roadClosuresChanges', async (data) => {
 
     if (change.type === 'new') {
       let date = moment(`${change.closure.timestamps.start}`, 'X');
+      date.tz('America/Chicago');
       let dateString = `${date.format('MMM')}. ${date.format('D')}`;
       let string = `🆕 ${dateString}, ${change.closure.type}, ${replaceClosure(change.closure.status)}, ${change.closure.time}`;
       closureChanges.push(string);
     } else if (change.type === 'update') {
       let date = moment(`${change.new.timestamps.start}`, 'X');
+      date.tz('America/Chicago');
       let dateString = `${date.format('MMM')}. ${date.format('D')}`;
       let testingDiff = objectdiff.diff(change.old, change.new);
       let changes = {};
