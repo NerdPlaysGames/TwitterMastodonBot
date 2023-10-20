@@ -1,35 +1,39 @@
 {
   "name": "mastobot",
-  "version": "0.0.1",
-  "description": "",
-  "main": "bot.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "version": "1.0.0",
+  "description": "A template for slash-create",
+  "main": "dist/index.js",
   "author": "Nerd",
-  "license": "UNLICENCED",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon --watch dist dist/index.js",
+    "build": "npx tsc",
+    "lint": "npx eslint --ext .ts ./src",
+    "lint:fix": "npx eslint --ext .ts ./src --fix"
+  },
   "dependencies": {
-    "danno-tools": "^1.1.2",
-    "dotenv": "^10.0.0",
-    "megalodon": "^4.1.1",
-    "moment": "^2.29.3",
-    "moment-timezone": "^0.5.38",
-    "node-cron": "^3.0.0",
-    "node-fetch": "^3.3.0",
-    "objectdiff": "^1.1.0",
-    "socket.io-client": "^4.2.0",
-    "twitter-api-v2": "^1.12.9"
+    "cat-loggr": "^1.2.2",
+    "dotenv": "^8.6.0",
+    "image-downloader": "^4.3.0",
+    "megalodon": "^8.1.6",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.43",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.1",
+    "socket.io-client": "^4.7.2",
+    "twitter-api-v2": "^1.15.2"
   },
   "devDependencies": {
-    "eslint": "^7.2.0",
-    "eslint-config-almeida": "^1.0.7",
-    "eslint-plugin-import": "^2.20.2"
-  },
-  "eslintConfig": {
-    "extends": "almeida",
-    "rules": {
-      "no-await-in-loop": "off",
-      "linebreak-style": "off"
-    }
+    "@types/express": "^4.17.11",
+    "@types/node": "^20.3.1",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
+    "eslint": "^7.15.0",
+    "eslint-config-prettier": "^7.0.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "prettier": "^2.2.1",
+    "slash-up": "^1.0.11",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
   }
 }
