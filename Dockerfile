@@ -2,12 +2,10 @@ FROM node:lts-slim
 
 WORKDIR /app
 
-COPY package*.json /app/
+COPY . /app/
 
 RUN npm install
 
-COPY keys.json /app/
-COPY bot.js /app/
-COPY nfetch.js /app/
+RUN npm run build
 
-CMD [ "node", "/app/bot.js" ]
+CMD [ "node", "/app/dist/index.js" ]
