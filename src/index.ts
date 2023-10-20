@@ -1,17 +1,17 @@
 import path from 'path';
 import dotenv from 'dotenv';
-import SocketClient from './utils/Socket';
 import CatLoggr from 'cat-loggr/ts';
 import moment from 'moment';
 import { schedule } from 'node-cron';
-import { postToAll } from './utils/Socials';
 
 let dotenvPath = path.join(process.cwd(), '.env');
 if (path.parse(process.cwd()).name === 'dist') dotenvPath = path.join(process.cwd(), '..', '.env');
 
 dotenv.config({ path: dotenvPath });
-
 const logger = new CatLoggr().setLevel(process.env.COMMANDS_DEBUG === 'true' ? 'debug' : 'info');
+
+import { postToAll } from './utils/Socials';
+import SocketClient from './utils/Socket';
 
 const socket = new SocketClient(logger);
 

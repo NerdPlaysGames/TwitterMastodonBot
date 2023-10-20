@@ -14,7 +14,11 @@ export default class SocketClient {
 
   constructor(logger: CatLoggr) {
     this.logger = logger;
-    this.socket = io(process.env.starbaseDashURL);
+    this.socket = io(`wss://${process.env.starbase_host}`);
+
+    this.socket.on('connect', () => {
+      this.logger.info('Connected to Starbase host.');
+    });
 
     this.socket.on('roadClosuresChanges', async (data: ClosureChanges[]) => {
       // eslint-disable-next-line prefer-const
@@ -83,11 +87,8 @@ export default class SocketClient {
     })
 
     this.socket.on('textmessages', async (data: string) => {
-
-    });
-
-    this.socket.on('connect', () => {
-      this.logger.info('Connected to Starbase host.');
+      const string = `Starbase - New Text Message from Cameron County:\n${data}`;
+      postToAll(string);
     });
   }
 }
