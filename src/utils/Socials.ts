@@ -1,5 +1,5 @@
 
-import { createReadStream } from 'fs';
+import { createReadStream, readFile, readSync } from 'fs';
 import { Mastodon } from 'megalodon';
 import { TwitterApi } from 'twitter-api-v2';
 
@@ -57,7 +57,7 @@ async function postToTwitter(text: string, media?: string) {
         let post = await twitterClient.v2.reply(threads[i], lastPost)
         lastPost = post.data.id
       } else {
-        if (media) {
+        if (media && i === 0) {
           let mediaFile = await twitterClient.v1.uploadMedia(media);
           let post = await twitterClient.v2.tweet(threads[i], {media: { media_ids:[mediaFile]}})
           lastPost = post.data.id

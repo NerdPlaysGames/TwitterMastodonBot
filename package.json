@@ -15,6 +15,7 @@
     "@types/node-cron": "^3.0.10",
     "cat-loggr": "^1.2.2",
     "dotenv": "^8.6.0",
+    "gif-extract-frames": "^1.0.2",
     "image-downloader": "^4.3.0",
     "megalodon": "^8.1.6",
     "moment": "^2.29.4",

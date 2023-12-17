@@ -5,6 +5,8 @@ import { image } from 'image-downloader';
 import { postToAll } from './Socials';
 import { fields } from './Fields';
 import { diff } from './ObjectDiff';
+import gifExtractor from 'gif-extract-frames';
+import { rm } from 'fs'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 export default class SocketClient {
@@ -14,11 +16,16 @@ export default class SocketClient {
 
   constructor(logger: CatLoggr) {
     this.logger = logger;
-    this.socket = io(`wss://${process.env.starbase_host}`);
+    // this.socket = io(`wss://${process.env.starbase_host}`);
+    this.socket = io('ws://192.168.0.91:8080')
 
     this.socket.on('connect', () => {
       this.logger.info('Connected to Starbase host.');
     });
+
+    this.socket.on('connect_error', (error) => {
+      this.logger.error(error);
+    })
 
     this.socket.on('roadClosuresChanges', async (data: ClosureChanges[]) => {
       // eslint-disable-next-line prefer-const
@@ -50,7 +57,7 @@ export default class SocketClient {
       }
 
       const string = `Starbase - Road Closure Update:\n${changes.join('\n')}`;
-      postToAll(string);
+      await postToAll(string);
     });
 
     this.socket.on('newNOTAM', async (data: NOTAM) => {
@@ -60,11 +67,30 @@ export default class SocketClient {
       const imageURL = `https://tfr.faa.gov/save_maps/sect_${tfrID2}.gif`;
 
       await image({
-        'dest': '../../tfr.gif',
+        'dest': `${process.cwd()}/tfr.gif`,
         'url': imageURL
       })
 
-      await postToAll(tfrString, './tfr.gif');
+      // Turn GIF into single frame png
+
+      const frames = await gifExtractor({
+        'input': `${process.cwd()}/tfr.gif`,
+        'output': `${process.cwd()}/tfr.png`
+      });
+
+      await postToAll(tfrString, `${process.cwd()}/tfr.png`);
+
+      rm(`${process.cwd()}/tfr.gif`, (err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
+      
+      rm(`${process.cwd()}/tfr.png`, (err) => {
+        if (err) {
+          console.error(err);
+        }
+      });
     });
 
     this.socket.on('dataUpdatePub', async (data: DataUpdate) => {
@@ -158,6 +184,11 @@ interface Closure {
 
 function cleanString(string) {
   let newString = string.replace('Closure', '');
+  const ignoreex = /\b(Flight|Activity|Test|Test\.)\b/g;
+  if (ignoreex.test(newString)) {
+    return newString.trim();
+  }
+
   // capture groups: Scheduled, Concluded, Complete, Possible, Canceled, Revoked
   const regex = /\b(Scheduled|Concluded|Complete|Possible|Canceled|Revoked)\b/g;
   if (regex.test(newString)) {
