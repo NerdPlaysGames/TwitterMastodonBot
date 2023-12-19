@@ -16,8 +16,7 @@ export default class SocketClient {
 
   constructor(logger: CatLoggr) {
     this.logger = logger;
-    // this.socket = io(`wss://${process.env.starbase_host}`);
-    this.socket = io('ws://192.168.0.91:8080')
+    this.socket = io(`wss://${process.env.starbase_host}`);
 
     this.socket.on('connect', () => {
       this.logger.info('Connected to Starbase host.');
