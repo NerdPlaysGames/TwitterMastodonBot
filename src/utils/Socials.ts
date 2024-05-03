@@ -85,20 +85,25 @@ async function postToAll(text: string, media?: string) {
   }
 }
 
-function splitToThread(text: string, maxLength: number) {
-  let split = text.split('\n');
-  let threads = [];
-  
-  for (let i = 0; i < split.length; i++) {
-    let currentIndex = threads.length - 1;
-    let newString = `${threads[currentIndex]}\n${split[i]}`;
+function splitToThread(text: string, maxLength: number = 280): string[] {
+  let splitText = text.split('\n');
 
-    if (newString.length > maxLength) {
-      threads.push(split[i]);
+  let threadArray: string[] = [];
+
+  let currentthread = '';
+
+  for (let i = 0; i < splitText.length; i++) {
+    if (currentthread.length + splitText[i].length + 1 <= maxLength) {
+      currentthread += splitText[i] + '\n';
+    } else {
+      threadArray.push(currentthread);
+      currentthread = splitText[i] + '\n';
     }
   }
 
-  return threads;
+  threadArray.push(currentthread);
+
+  return threadArray;
 }
 
 const clients = {
